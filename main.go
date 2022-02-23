@@ -9,6 +9,8 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+var myconn []*websocket.Conn
+
 func main() {
 	port := os.Getenv("PORT")
 
@@ -25,6 +27,12 @@ func Echo(ws *websocket.Conn) {
 
 		fmt.Println(ws.RemoteAddr())
 
+		if Contains(ws) == false {
+			myconn = append(myconn, ws)
+		}
+
+		fmt.Println(myconn)
+
 		var reply string
 
 		err := websocket.Message.Receive(ws, &reply)
@@ -40,6 +48,15 @@ func Echo(ws *websocket.Conn) {
 			fmt.Println("Can't send")
 		}
 	}
+}
+
+func Contains(x *websocket.Conn) bool {
+	for _, n := range myconn {
+		if x == n {
+			return true
+		}
+	}
+	return false
 }
 
 /*func main() {
