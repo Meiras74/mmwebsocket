@@ -32,13 +32,17 @@ func Echo(ws *websocket.Conn) {
 			myconn = append(myconn, ws)
 		}
 
-		//fmt.Println(myconn)
+		fmt.Println(myconn)
 
 		var reply string
 
 		err := websocket.Message.Receive(ws, &reply)
 		if err != nil {
 			fmt.Println("Error receive : " + err.Error())
+			ind := IndexOf(ws)
+			if ind != -1 {
+				Remove(ind)
+			}
 			break
 		}
 
@@ -61,6 +65,22 @@ func Contains(x *websocket.Conn) bool {
 		}
 	}
 	return false
+}
+
+func IndexOf(x *websocket.Conn) int {
+	var count int
+	count = 0
+	for _, n := range myconn {
+		if x == n {
+			return count
+		}
+		count = count + 1
+	}
+	return -1
+}
+
+func Remove(i int) {
+	myconn = append(myconn[:i], myconn[i+1:]...)
 }
 
 /*func main() {
