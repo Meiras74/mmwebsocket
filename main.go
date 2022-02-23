@@ -26,47 +26,49 @@ func Echo(ws *websocket.Conn) {
 
 	fmt.Println("--" + ws.RemoteAddr().String() + "--")
 
-	for {
-
-		if ValidateAddress(ws.RemoteAddr().String()) == false {
-			err := websocket.Message.Send(ws, "Origin not valid")
-			if err != nil {
-				fmt.Println("Can't send Origin not valid")
-			}
-			ws.Close()
-			break
+	if ValidateAddress(ws.RemoteAddr().String()) == false {
+		err := websocket.Message.Send(ws, "Origin not valid")
+		if err != nil {
+			fmt.Println("Can't send Origin not valid")
 		}
+		ws.Close()
+
+	} else {
 
 		if Contains(ws) == false {
 			myconn = append(myconn, ws)
 		}
 
-		//fmt.Println(myconn)
+		for {
 
-		var reply string
+			//fmt.Println(myconn)
 
-		err := websocket.Message.Receive(ws, &reply)
-		if err != nil {
-			fmt.Println("Error receive : " + err.Error())
-			ind := IndexOf(ws)
-			if ind != -1 {
-				Remove(ind)
+			var reply string
+
+			err := websocket.Message.Receive(ws, &reply)
+			if err != nil {
+				fmt.Println("Error receive : " + err.Error())
+				ind := IndexOf(ws)
+				if ind != -1 {
+					Remove(ind)
+				}
+				break
 			}
-			break
-		}
 
-		//reply = "Echo from server " + reply
+			//reply = "Echo from server " + reply
 
-		for _, conn := range myconn {
-			if conn != ws {
-				err = websocket.Message.Send(conn, reply)
-				if err != nil {
-					fmt.Println("Can't send")
+			for _, conn := range myconn {
+				if conn != ws {
+					err = websocket.Message.Send(conn, reply)
+					if err != nil {
+						fmt.Println("Can't send")
+					}
 				}
 			}
-		}
 
+		}
 	}
+
 }
 
 func Contains(x *websocket.Conn) bool {
