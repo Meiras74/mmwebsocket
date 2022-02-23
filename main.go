@@ -10,6 +10,7 @@ import (
 )
 
 var myconn []*websocket.Conn
+var addressAut [2]string = [2]string{"https://meiras.outsystemscloud.com", "54.160.50.175"}
 
 func main() {
 	port := os.Getenv("PORT")
@@ -25,14 +26,20 @@ func Echo(ws *websocket.Conn) {
 
 	for {
 
-		fmt.Println(ws.RemoteAddr())
-		//falta fazer tratamento do address
+		//fmt.Println(ws.RemoteAddr())
+
+		if ValidateAddress(ws.RemoteAddr().String()) == false {
+			err := websocket.Message.Send(ws, "Origin not valid")
+			if err != nil {
+				fmt.Println("Can't send")
+			}
+		}
 
 		if Contains(ws) == false {
 			myconn = append(myconn, ws)
 		}
 
-		fmt.Println(myconn)
+		//fmt.Println(myconn)
 
 		var reply string
 
@@ -83,6 +90,16 @@ func IndexOf(x *websocket.Conn) int {
 
 func Remove(i int) {
 	myconn = append(myconn[:i], myconn[i+1:]...)
+}
+
+func ValidateAddress(a string) bool {
+
+	for i := 0; i < len(addressAut); i++ {
+		if addressAut[i] == a {
+			return true
+		}
+	}
+	return false
 }
 
 /*func main() {
