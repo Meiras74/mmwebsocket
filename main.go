@@ -49,9 +49,11 @@ func Echo(ws *websocket.Conn) {
 		//reply = "Echo from server " + reply
 
 		for _, conn := range myconn {
-			err = websocket.Message.Send(conn, reply)
-			if err != nil {
-				fmt.Println("Can't send")
+			if conn != ws {
+				err = websocket.Message.Send(conn, reply)
+				if err != nil {
+					fmt.Println("Can't send")
+				}
 			}
 		}
 
