@@ -23,9 +23,10 @@ func Echo(ws *websocket.Conn) {
 
 	for {
 
-		fmt.Println(ws)
+		fmt.Println(websocket.RemoteAddr())
 
 		var reply string
+
 		err := websocket.Message.Receive(ws, &reply)
 		if err != nil {
 			fmt.Println("Error receive : " + err.Error())
