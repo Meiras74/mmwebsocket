@@ -26,12 +26,13 @@ func Echo(ws *websocket.Conn) {
 	for {
 
 		fmt.Println(ws.RemoteAddr())
+		//falta fazer tratamento do address
 
 		if Contains(ws) == false {
 			myconn = append(myconn, ws)
 		}
 
-		fmt.Println(myconn)
+		//fmt.Println(myconn)
 
 		var reply string
 
@@ -41,12 +42,15 @@ func Echo(ws *websocket.Conn) {
 			break
 		}
 
-		reply = "Echo from server " + reply
+		//reply = "Echo from server " + reply
 
-		err = websocket.Message.Send(ws, reply)
-		if err != nil {
-			fmt.Println("Can't send")
+		for _, conn := range myconn {
+			err = websocket.Message.Send(conn, reply)
+			if err != nil {
+				fmt.Println("Can't send")
+			}
 		}
+
 	}
 }
 
