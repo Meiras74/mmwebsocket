@@ -23,7 +23,7 @@ func Echo(ws *websocket.Conn) {
 
 	for {
 
-		fmt.Println(websocket.RemoteAddr())
+		fmt.Println(ws.RemoteAddr())
 
 		var reply string
 
