@@ -26,7 +26,7 @@ func Echo(ws *websocket.Conn) {
 
 	for {
 
-		//fmt.Println(ws.RemoteAddr())
+		fmt.Println(ws.RemoteAddr())
 
 		if ValidateAddress(ws.RemoteAddr().String()) == false {
 			err := websocket.Message.Send(ws, "Origin not valid")
