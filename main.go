@@ -33,6 +33,7 @@ func Echo(ws *websocket.Conn) {
 			if err != nil {
 				fmt.Println("Can't send Origin not valid")
 			}
+			ws.Close()
 		}
 
 		if Contains(ws) == false {
