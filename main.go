@@ -12,16 +12,19 @@ import (
 func main() {
 	port := os.Getenv("PORT")
 
-	fmt.Println("server start in port : " + port)
-
 	http.Handle("/", websocket.Handler(Echo))
 
 	log.Fatal(http.ListenAndServe(":"+port, nil))
+
+	fmt.Println("server start on port : " + port)
 }
 
 func Echo(ws *websocket.Conn) {
 
 	for {
+
+		fmt.Println(ws)
+
 		var reply string
 		err := websocket.Message.Receive(ws, &reply)
 		if err != nil {
