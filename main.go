@@ -10,7 +10,7 @@ import (
 )
 
 var myconn []*websocket.Conn
-var addressAut [2]string = [2]string{"https://meiras.outsystemscloud.com", "54.160.50.175"}
+var addressAut [2]string = [2]string{"https://meiras.outsystemscloud.com", "54.160.50.175", "https://www.piesocket.com"}
 
 func main() {
 	port := os.Getenv("PORT")
