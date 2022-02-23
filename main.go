@@ -15,11 +15,7 @@ var addressAut [3]string = [3]string{"https://meiras.outsystemscloud.com", "54.1
 func main() {
 	port := os.Getenv("PORT")
 
-	http.HandleFunc("/",
-		func(w http.ResponseWriter, req *http.Request) {
-			s := websocket.Server{Handler: websocket.Handler(Echo)}
-			s.ServeHTTP(w, req)
-		})
+	http.Handle("/", websocket.Handler(Echo))
 
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 
