@@ -31,7 +31,7 @@ func Echo(ws *websocket.Conn) {
 		if ValidateAddress(ws.RemoteAddr().String()) == false {
 			err := websocket.Message.Send(ws, "Origin not valid")
 			if err != nil {
-				fmt.Println("Can't send")
+				fmt.Println("Can't send Origin not valid")
 			}
 		}
 
