@@ -113,6 +113,9 @@ func CleanClients() {
 	for range time.Tick(10 * time.Second) {
 		for _, n := range myconn {
 			fmt.Println(n)
+			if n.IsServerConn() == false {
+				n.Close()
+			}
 		}
 	}
 }
