@@ -40,6 +40,10 @@ func Echo(ws *websocket.Conn) {
 
 		if Contains(ws) == false {
 			myconn = append(myconn, ws)
+			err := websocket.Message.Send(ws, "Welcome to Miguel Websocket Server")
+			if err != nil {
+				fmt.Println("Can't send welcome message")
+			}
 		}
 
 		for {
