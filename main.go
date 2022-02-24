@@ -114,6 +114,10 @@ func CleanClients() {
 		fmt.Println(len(myconn))
 		for _, n := range myconn {
 			if n.IsServerConn() == false {
+				ind := IndexOf(n)
+				if ind != -1 {
+					Remove(ind)
+				}
 				n.Close()
 			}
 		}
