@@ -10,19 +10,23 @@ import (
 )
 
 var myconn []*websocket.Conn
-var addressAut [3]string = [3]string{"https://meiras.outsystemscloud.com", "54.160.50.175", "https://www.piesocket.com"}
+var addressAut [3]string = [3]string{"https://meiras.outsystemscloud.com", "timer://", "https://www.piesocket.com"}
 
 func main() {
 	port := os.Getenv("PORT")
+	//port := "3000"
 
 	http.Handle("/", websocket.Handler(Echo))
 
+	fmt.Println("server start on port : " + port)
+
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 
-	fmt.Println("server start on port : " + port)
 }
 
 func Echo(ws *websocket.Conn) {
+
+	fmt.Println(ws.RemoteAddr())
 
 	fmt.Println("--" + ws.RemoteAddr().String() + "--")
 
