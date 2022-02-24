@@ -1,135 +1,129 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"golang.org/x/net/websocket"
 )
 
-// T receive and send Json
-type T struct {
-	Name   string
-	Msg    string
-	Action int
-}
-
-var allClients map[string]clients
-
-type clients struct {
-	Conn *websocket.Conn
-	Name string
-}
-
-// NewClient cria novo cliente
-func NewClient(ws *websocket.Conn, login string) {
-	clients := new(clients)
-
-	clients.Conn = ws
-	clients.Name = login
-
-	allClients[clients.Name] = *clients
-
-	fmt.Println(allClients)
-}
-
-// Echo echo from srver
-func Echo(ws *websocket.Conn) {
-	//fmt.Println(ws.Config())
-
-	for {
-
-		//var reply string
-		var data T
-
-		//err := websocket.Message.Receive(ws, &reply)
-		err := websocket.JSON.Receive(ws, &data)
-		if err != nil {
-			fmt.Println("Error receive : " + err.Error())
-			break
-		}
-
-		if data.Action == 1 {
-			if _, exists := allClients[data.Name]; !exists {
-				NewClient(ws, data.Name)
-				data.Msg = data.Name + " as login"
-				for _, key := range allClients {
-					if key.Conn != ws {
-						err = websocket.JSON.Send(key.Conn, data)
-						if err != nil {
-							fmt.Println("Can't send")
-							//break
-						}
-					}
-				}
-			} else {
-				data.Msg = " error : " + data.Name + " already login"
-
-				//err := websocket.Message.Send(ws, msg);
-				err = websocket.JSON.Send(ws, data)
-				if err != nil {
-					fmt.Println("Can't send")
-				}
-				//break
-			}
-
-		} else if data.Action == 3 {
-			for _, key := range allClients {
-				if key.Conn != ws {
-					data.Msg = data.Name + " Logout "
-					err = websocket.JSON.Send(key.Conn, data)
-					if err != nil {
-						fmt.Println("Can't send")
-						//break
-					}
-				}
-			}
-			for _, key := range allClients {
-				if key.Conn == ws {
-					delete(allClients, key.Name)
-					data.Msg = data.Name + " Logout "
-					err = key.Conn.Close()
-					if err != nil {
-						fmt.Println("Can't close")
-						//break
-					}
-				}
-			}
-			fmt.Println(allClients)
-		} else {
-			//msg := "Received:  " + reply
-			for _, key := range allClients {
-				if key.Conn != ws {
-					data.Msg = data.Name + " send: " + data.Msg
-					err = websocket.JSON.Send(key.Conn, data)
-					if err != nil {
-						fmt.Println("Can't send")
-						//break
-					}
-				}
-			}
-		}
-
-	}
-}
+var myconn []*websocket.Conn
+var addressAut [3]string = [3]string{"https://meiras.outsystemscloud.com", "https://www.piesocket.com"}
 
 func main() {
-	var port string
-
-	flag.StringVar(&port, "port", "8181", "port for server")
-	flag.Parse()
-
-	fmt.Println(port)
-
-	fmt.Println("Start Server")
-
-	allClients = make(map[string]clients)
+	port := os.Getenv("PORT")
+	//port := "3000"
 
 	http.Handle("/", websocket.Handler(Echo))
+	go CleanClients()
+	fmt.Println("server start on port : " + port)
 
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal("ListenAndServe:", err)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+
+}
+
+func Echo(ws *websocket.Conn) {
+
+	fmt.Println("--" + ws.RemoteAddr().String() + "--")
+
+	if ValidateAddress(ws.RemoteAddr().String()) == false {
+		err := websocket.Message.Send(ws, "Origin not valid")
+		if err != nil {
+			fmt.Println("Can't send Origin not valid")
+		}
+		ws.Close()
+
+	} else {
+
+		if Contains(ws) == false {
+			myconn = append(myconn, ws)
+		}
+
+		for {
+
+			//fmt.Println(myconn)
+
+			var reply string
+
+			err := websocket.Message.Receive(ws, &reply)
+			if err != nil {
+				fmt.Println("Error receive : " + err.Error())
+				ind := IndexOf(ws)
+				if ind != -1 {
+					Remove(ind)
+				}
+				break
+			}
+
+			//reply = "Echo from server " + reply
+
+			for _, conn := range myconn {
+				if conn != ws {
+					err = websocket.Message.Send(conn, reply)
+					if err != nil {
+						fmt.Println("Can't send")
+					}
+				}
+			}
+
+		}
+	}
+
+}
+
+func Contains(x *websocket.Conn) bool {
+	for _, n := range myconn {
+		if x == n {
+			return true
+		}
+	}
+	return false
+}
+
+func IndexOf(x *websocket.Conn) int {
+	var count int
+	count = 0
+	for _, n := range myconn {
+		if x == n {
+			return count
+		}
+		count = count + 1
+	}
+	return -1
+}
+
+func Remove(i int) {
+	myconn = append(myconn[:i], myconn[i+1:]...)
+}
+
+func ValidateAddress(a string) bool {
+
+	for i := 0; i < len(addressAut); i++ {
+		if addressAut[i] == a {
+			return true
+		}
+	}
+	return false
+}
+
+func CleanClients() {
+	for range time.Tick(10 * time.Second) {
+		for _, n := range myconn {
+			fmt.Println(n)
+		}
 	}
 }
+
+/*func main() {
+	port := os.Getenv("PORT")
+
+	http.HandleFunc("/", helloHandler)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+}*/
+
+/*func helloHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello")
+}*/
