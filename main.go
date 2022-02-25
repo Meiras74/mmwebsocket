@@ -57,6 +57,11 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 
+	conn.SetPingHandler(func(msg string) error {
+		log.Print("ping : " + msg)
+		return nil
+	})
+
 	// The event loop
 	for {
 
