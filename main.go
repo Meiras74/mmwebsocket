@@ -122,7 +122,7 @@ func CleanClients() {
 				if ind != -1 {
 					Remove(ind)
 				}
-				n.Close()
+				//n.Close()
 			}
 		}
 		fmt.Println(len(myconn))
