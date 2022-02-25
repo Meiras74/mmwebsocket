@@ -56,6 +56,9 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("error: %v", err)
+			}
 			log.Println("Error during message reading:", err)
 			break
 		}
