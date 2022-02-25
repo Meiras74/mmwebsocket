@@ -57,8 +57,9 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("Error during message reading:", err)
-			//break
+			break
 		}
+
 		log.Printf("Received: %s", message)
 
 		log.Print(messageType)
