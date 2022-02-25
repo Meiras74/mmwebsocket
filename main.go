@@ -75,7 +75,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 					err := ws.WriteMessage(messageType, message)
 					if err != nil {
 						log.Println("Error during message writing:", err)
-						//break
+						delete(myconn, ws)
 					}
 				}
 
