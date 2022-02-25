@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -20,6 +21,8 @@ func main() {
 
 func socketHandler(w http.ResponseWriter, r *http.Request) {
 	// Upgrade our raw HTTP connection to a websocket based one
+
+	fmt.Println(r.Header.Get("Origin"))
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("Error during connection upgradation:", err)
