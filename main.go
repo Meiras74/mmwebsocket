@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"golang.org/x/net/websocket"
 )
@@ -113,20 +114,20 @@ func ValidateAddress(a string) bool {
 }
 
 func CleanClients() {
-	/*
-		for range time.Tick(30 * time.Second) {
 
-			for _, n := range myconn {
-				if n.IsClientConn() == false {
-					ind := IndexOf(n)
-					if ind != -1 {
-						Remove(ind)
-					}
-					//n.Close()
+	for range time.Tick(10 * time.Second) {
+
+		for _, n := range myconn {
+			err := websocket.Message.Send(n, "")
+			if err != nil {
+				ind := IndexOf(n)
+				if ind != -1 {
+					Remove(ind)
 				}
 			}
-			fmt.Println(len(myconn))
-		}*/
+		}
+		fmt.Println(len(myconn))
+	}
 }
 
 /*func main() {
