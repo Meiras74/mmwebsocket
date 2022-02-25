@@ -115,9 +115,9 @@ func ValidateAddress(a string) bool {
 
 func CleanClients() {
 	for range time.Tick(30 * time.Second) {
-		fmt.Println(len(myconn))
+
 		for _, n := range myconn {
-			if n.IsServerConn() == false {
+			if n.IsClientConn() == false {
 				ind := IndexOf(n)
 				if ind != -1 {
 					Remove(ind)
@@ -125,6 +125,7 @@ func CleanClients() {
 				n.Close()
 			}
 		}
+		fmt.Println(len(myconn))
 	}
 }
 
