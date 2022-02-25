@@ -1,142 +1,44 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 )
 
-var myconn []*websocket.Conn
-var addressAut [3]string = [3]string{"https://meiras.outsystemscloud.com", "https://www.piesocket.com"}
+var upgrader = websocket.Upgrader{}
 
 func main() {
 	port := os.Getenv("PORT")
 	//port := "3000"
 
-	http.Handle("/", websocket.Handler(Echo))
-	go CleanClients()
-	fmt.Println("server start on port : " + port)
-
+	http.HandleFunc("/", socketHandler)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
-
 }
 
-func Echo(ws *websocket.Conn) {
+func socketHandler(w http.ResponseWriter, r *http.Request) {
+	// Upgrade our raw HTTP connection to a websocket based one
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Print("Error during connection upgradation:", err)
+		return
+	}
+	defer conn.Close()
 
-	fmt.Println("--" + ws.RemoteAddr().String() + "--")
-
-	if ValidateAddress(ws.RemoteAddr().String()) == false {
-		err := websocket.Message.Send(ws, "Origin not valid")
+	// The event loop
+	for {
+		messageType, message, err := conn.ReadMessage()
 		if err != nil {
-			fmt.Println("Can't send Origin not valid")
+			log.Println("Error during message reading:", err)
+			break
 		}
-		ws.Close()
-
-	} else {
-
-		if Contains(ws) == false {
-			myconn = append(myconn, ws)
-			err := websocket.Message.Send(ws, "Welcome to Miguel Websocket Server")
-			if err != nil {
-				fmt.Println("Can't send welcome message")
-			}
-		}
-
-		for {
-
-			//fmt.Println(myconn)
-
-			var reply string
-
-			err := websocket.Message.Receive(ws, &reply)
-			if err != nil {
-				fmt.Println("Error receive : " + err.Error())
-				ind := IndexOf(ws)
-				if ind != -1 {
-					Remove(ind)
-				}
-				break
-			}
-
-			//reply = "Echo from server " + reply
-
-			for _, conn := range myconn {
-				if conn != ws {
-					err = websocket.Message.Send(conn, reply)
-					if err != nil {
-						fmt.Println("Can't send")
-					}
-				}
-			}
-
+		log.Printf("Received: %s", message)
+		err = conn.WriteMessage(messageType, message)
+		if err != nil {
+			log.Println("Error during message writing:", err)
+			break
 		}
 	}
-
 }
-
-func Contains(x *websocket.Conn) bool {
-	for _, n := range myconn {
-		if x == n {
-			return true
-		}
-	}
-	return false
-}
-
-func IndexOf(x *websocket.Conn) int {
-	var count int
-	count = 0
-	for _, n := range myconn {
-		if x == n {
-			return count
-		}
-		count = count + 1
-	}
-	return -1
-}
-
-func Remove(i int) {
-	myconn = append(myconn[:i], myconn[i+1:]...)
-}
-
-func ValidateAddress(a string) bool {
-
-	for i := 0; i < len(addressAut); i++ {
-		if addressAut[i] == a {
-			return true
-		}
-	}
-	return false
-}
-
-func CleanClients() {
-	/*
-		for range time.Tick(30 * time.Second) {
-
-			for _, n := range myconn {
-				err := websocket.Message.Send(n, "")
-				if err != nil {
-					ind := IndexOf(n)
-					if ind != -1 {
-						Remove(ind)
-					}
-				}
-			}
-			fmt.Println(len(myconn))
-		}
-	*/
-}
-
-/*func main() {
-	port := os.Getenv("PORT")
-
-	http.HandleFunc("/", helloHandler)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
-}*/
-
-/*func helloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello")
-}*/
