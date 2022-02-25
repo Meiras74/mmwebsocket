@@ -9,7 +9,16 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{}
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		fmt.Println(r.Header.Get("Origin"))
+		if ValidateAddress(r.Header.Get("Origin")) != true {
+			http.Error(w, "Origin not allowed", http.StatusForbidden)
+			return false
+		}
+		return true
+	},
+}
 var addressAut [2]string = [2]string{"https://meiras.outsystemscloud.com"}
 
 func main() {
@@ -22,12 +31,6 @@ func main() {
 
 func socketHandler(w http.ResponseWriter, r *http.Request) {
 	// Upgrade our raw HTTP connection to a websocket based one
-
-	fmt.Println(r.Header.Get("Origin"))
-	if ValidateAddress(r.Header.Get("Origin")) != true {
-		http.Error(w, "Origin not allowed", http.StatusForbidden)
-		return
-	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
