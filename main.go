@@ -19,7 +19,8 @@ var upgrader = websocket.Upgrader{
 }
 var addressAut [2]string = [2]string{"https://meiras.outsystemscloud.com", "https://www.piesocket.com"}
 
-var myconn []*websocket.Conn
+//var myconn []*websocket.Conn
+var myconn = make(map[*websocket.Conn]bool)
 
 func main() {
 	port := os.Getenv("PORT")
@@ -41,7 +42,8 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 
 	//log.Print(conn)
 	if Contains(conn) == false {
-		myconn = append(myconn, conn)
+		//myconn = append(myconn, conn)
+		myconn[conn] = true
 		msg := []byte("Welcome to Miguel Websocket Server")
 		err = conn.WriteMessage(1, msg)
 		if err != nil {
@@ -60,7 +62,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Received: %s", message)
 
 		log.Print(messageType)
-		for _, ws := range myconn {
+		for ws := range myconn {
 			err := ws.WriteMessage(messageType, message)
 			if err != nil {
 				log.Println("Error during message writing:", err)
@@ -82,7 +84,7 @@ func ValidateAddress(a string) bool {
 }
 
 func Contains(x *websocket.Conn) bool {
-	for _, n := range myconn {
+	for n := range myconn {
 		if x == n {
 			return true
 		}
