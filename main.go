@@ -63,11 +63,14 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 
 		log.Print(messageType)
 		for ws := range myconn {
-			err := ws.WriteMessage(messageType, message)
-			if err != nil {
-				log.Println("Error during message writing:", err)
-				break
+			if ws != conn {
+				err := ws.WriteMessage(messageType, message)
+				if err != nil {
+					log.Println("Error during message writing:", err)
+					break
+				}
 			}
+
 		}
 
 	}
