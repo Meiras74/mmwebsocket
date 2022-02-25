@@ -62,15 +62,17 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Received: %s", message)
 
 		log.Print(messageType)
-		for ws := range myconn {
-			if ws != conn {
-				err := ws.WriteMessage(messageType, message)
-				if err != nil {
-					log.Println("Error during message writing:", err)
-					//break
+		if messageType == 1 {
+			for ws := range myconn {
+				if ws != conn {
+					err := ws.WriteMessage(messageType, message)
+					if err != nil {
+						log.Println("Error during message writing:", err)
+						//break
+					}
 				}
-			}
 
+			}
 		}
 
 	}
