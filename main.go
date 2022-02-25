@@ -38,7 +38,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		log.Print("Error during connection upgradation:", err)
 		return
 	}
-	//defer conn.Close()
+	defer conn.Close()
 
 	//log.Print(conn)
 	if Contains(conn) == false {
@@ -48,20 +48,20 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		err = conn.WriteMessage(1, msg)
 		if err != nil {
 			log.Print("Can't send welcome message")
+			return
 		}
 	}
+
+	conn.SetPongHandler(func(msg string) error {
+		log.Print("pong : " + msg)
+		return nil
+	})
 
 	// The event loop
 	for {
 
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("unpexct  close error: %v", err)
-			}
-			if websocket.IsCloseError(err) {
-				log.Printf("close error: %v", err)
-			}
 			log.Println("Error during message reading:", err)
 			break
 		}
