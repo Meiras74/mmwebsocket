@@ -13,7 +13,6 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		fmt.Println(r.Header.Get("Origin"))
 		if ValidateAddress(r.Header.Get("Origin")) != true {
-			http.Error(w, "Origin not allowed", http.StatusForbidden)
 			return false
 		}
 		return true
