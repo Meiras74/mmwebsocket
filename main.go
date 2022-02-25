@@ -10,6 +10,7 @@ import (
 )
 
 var upgrader = websocket.Upgrader{}
+var addressAut [2]string = [2]string{"https://meiras.outsystemscloud.com", "https://www.piesocket.com"}
 
 func main() {
 	port := os.Getenv("PORT")
@@ -23,6 +24,11 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	// Upgrade our raw HTTP connection to a websocket based one
 
 	fmt.Println(r.Header.Get("Origin"))
+	if ValidateAddress(r.Header.Get("Origin")) != true {
+		http.Error(w, "Origin not allowed", http.StatusForbidden)
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("Error during connection upgradation:", err)
@@ -44,4 +50,14 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+}
+
+func ValidateAddress(a string) bool {
+
+	for i := 0; i < len(addressAut); i++ {
+		if addressAut[i] == a {
+			return true
+		}
+	}
+	return false
 }
