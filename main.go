@@ -37,7 +37,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		log.Print("Error during connection upgradation:", err)
 		return
 	}
-	defer conn.Close()
+	//defer conn.Close()
 
 	//log.Print(conn)
 	if Contains(conn) == false {
@@ -61,12 +61,10 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 
 		log.Print(messageType)
 		for _, ws := range myconn {
-			if ws != conn {
-				err = ws.WriteMessage(messageType, message)
-				if err != nil {
-					log.Println("Error during message writing:", err)
-					break
-				}
+			err := ws.WriteMessage(messageType, message)
+			if err != nil {
+				log.Println("Error during message writing:", err)
+				break
 			}
 		}
 
