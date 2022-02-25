@@ -10,7 +10,7 @@ import (
 )
 
 var upgrader = websocket.Upgrader{}
-var addressAut [2]string = [2]string{"https://meiras.outsystemscloud.com", "https://www.piesocket.com"}
+var addressAut [2]string = [2]string{"https://meiras.outsystemscloud.com"}
 
 func main() {
 	port := os.Getenv("PORT")
